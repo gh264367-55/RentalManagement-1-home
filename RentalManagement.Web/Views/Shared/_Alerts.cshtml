@@ -1,0 +1,16 @@
+@using RentalManagement.Web.Infrastructure
+@* One-time messages set in TempData before a redirect (e.g. "Your application was submitted"). *@
+@if (TempData[TempDataKeys.Success] is string success)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="status">
+        @success
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData[TempDataKeys.Error] is string error)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @error
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}

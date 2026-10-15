@@ -1,0 +1,15 @@
+@model LandingFeature
+@* Partial: _FeatureCard. One landing-page card: an icon (or a numbered step badge), a heading and a short text.
+   Used by the "How it works" and "For property managers" sections of Home/Index. The heading is an h3 because both
+   sections use an h2. *@
+<article class="feature-card h-100">
+    <div class="feature-card-icon">
+        <partial name="_Icon" model="Model.Icon" />
+    </div>
+    @if (Model.Step is int step)
+    {
+        <p class="feature-card-step">Step @step</p>
+    }
+    <h3 class="feature-card-title">@Model.Title</h3>
+    <p class="feature-card-text">@Model.Text</p>
+</article>

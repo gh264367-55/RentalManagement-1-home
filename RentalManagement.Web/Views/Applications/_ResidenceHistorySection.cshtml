@@ -1,0 +1,18 @@
+@model ApplicationPageViewModel
+@* Section 2. Residences are added, edited and removed through modals (ResidencesController); "Save & continue"
+   then checks that the history is complete. *@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h2 class="h5 mb-0">Residence history</h2>
+        <div class="small text-muted">List your previous homes, most recent first.</div>
+    </div>
+    @if (Model.IsEditable)
+    {
+        <button type="button" class="btn btn-sm btn-primary"
+                data-modal-url="@Url.Action("Create", "Residences", new { applicationId = Model.Id })">Add residence</button>
+    }
+</div>
+
+<div id="residence-list" data-refresh-url="@Url.Action("List", "Residences", new { applicationId = Model.Id })">
+    @await Component.InvokeAsync(typeof(ResidenceListViewComponent), new { applicationId = Model.Id, editable = Model.IsEditable })
+</div>

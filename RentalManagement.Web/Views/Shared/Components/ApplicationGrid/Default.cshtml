@@ -1,0 +1,169 @@
+@model ApplicationGridModel
+@* View component: ApplicationGrid. The grid shell: toolbar (status/property filters, rows per page, a sort selector for
+   phones), result summary, error box, a table whose headers are sort buttons, and the pager. Rows are filled by
+   wwwroot/js/application-grid.js from the JSON endpoint in data-api-url (the application list, or the review queue
+   named in data-queue, whose rows get Claim / Review / Release buttons); the data-* attributes carry the first state.
+   Each column's classes are copied to its cells, so responsive hiding is decided here once. *@
+@{
+    var options = Model.Options;
+    var query = Model.Query;
+    var id = options.Id;
+    var emptyText = options.EmptyText
+        ?? (Model.IsManager ? "No applications yet." : "You haven't started an application yet. Browse the available units to apply.");
+    var sortable = Model.Columns.Where(c => c.Sortable).ToList();
+    var hasToolbar = options.ShowFilters || options.ShowPageSize;
+}
+
+<section id="@id" class="app-grid" data-app-grid
+         data-api-url="@Model.ApiUrl"
+         data-queue="@Model.QueueKey"
+         data-page="@query.Page"
+         data-page-size="@query.PageSize"
+         data-sort-by="@query.SortKey"
+         data-sort-direction="@query.SortDirectionKey"
+         data-status="@query.Status"
+         data-property-id="@query.PropertyId"
+         data-default-page-size="@ApplicationListQuery.DefaultPageSize"
+         data-default-sort-by="@(Model.QueueKey is null ? ApplicationListQuery.Default.SortKey : query.SortKey)"
+         data-default-sort-direction="@(Model.QueueKey is null ? ApplicationListQuery.Default.SortDirectionKey : query.SortDirectionKey)"
+         data-sync-url="@(options.SyncUrl ? "true" : "false")"
+         data-status-css="@System.Text.Json.JsonSerializer.Serialize(Model.StatusCss)"
+         data-empty-text="@emptyText"
+         data-empty-filtered-text="No applications match the filter.">
+
+    @if (options.Notice is not null)
+    {
+        <div class="alert alert-warning" role="status">@options.Notice</div>
+    }
+
+    @if (Model.QueueKey is not null)
+    {
+        @* The script copies this token into each row's Claim form, so claims pass the global anti-forgery check. *@
+        <div hidden data-grid-antiforgery>@Html.AntiForgeryToken()</div>
+    }
+
+    @if (hasToolbar)
+    {
+        @* A plain GET form, so the filters still work (as a page reload) if the script can't run. *@
+        <form method="get" class="card card-body shadow-sm mb-3" data-grid-toolbar aria-label="@options.Caption: filter and display options">
+            <div class="row g-3 align-items-end">
+                @if (options.ShowFilters && options.ShowStatusFilter)
+                {
+                    <div class="col-sm-6 col-lg-4">
+                        <label for="@id-status" class="form-label">Status</label>
+                        <select id="@id-status" name="status" class="form-select" data-grid-filter="status">
+                            <option value="">Any status</option>
+                            @foreach (var status in Model.Statuses)
+                            {
+                                <option value="@status" selected="@(query.Status == status)">@StatusDisplay.Label(status)</option>
+                            }
+                        </select>
+                    </div>
+                }
+                @if (options.ShowFilters)
+                {
+                    <div class="col-sm-6 col-lg-4">
+                        <label for="@id-property" class="form-label">Property</label>
+                        <select id="@id-property" name="propertyId" class="form-select" data-grid-filter="propertyId">
+                            <option value="">Any property</option>
+                            @foreach (var property in Model.PropertyOptions)
+                            {
+                                <option value="@property.Id" selected="@(query.PropertyId == property.Id)">@property.Name</option>
+                            }
+                        </select>
+                    </div>
+                }
+                @if (options.ShowPageSize)
+                {
+                    <div class="col-6 col-lg-2">
+                        <label for="@id-page-size" class="form-label">Rows per page</label>
+                        <select id="@id-page-size" name="pageSize" class="form-select" data-grid-page-size>
+                            @foreach (var size in Model.PageSizes)
+                            {
+                                <option value="@size" selected="@(query.PageSize == size)">@size</option>
+                            }
+                        </select>
+                    </div>
+                }
+                @if (options.ShowFilters)
+                {
+                    <div class="col-6 col-lg-2">
+                        <button type="button" class="btn btn-outline-secondary w-100" data-grid-clear
+                                hidden="@(query.Status is null && query.PropertyId is null)">
+                            Clear filters
+                        </button>
+                    </div>
+                }
+                @* Sort columns are hidden on phones, so offer the same sorts as a list there. *@
+                <div class="col-12 d-md-none">
+                    <label for="@id-sort" class="form-label">Sort by</label>
+                    <select id="@id-sort" class="form-select" data-grid-sort-select>
+                        @foreach (var column in sortable)
+                        {
+                            foreach (var (direction, text) in new[] { ("asc", "ascending"), ("desc", "descending") })
+                            {
+                                <option value="@column.Key:@direction"
+                                        selected="@(query.SortKey == column.Key && query.SortDirectionKey == direction)">
+                                    @(column.Key == "id" ? "Application #" : column.Label), @text
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+                <noscript>
+                    <div class="col-12"><button type="submit" class="btn btn-primary">Apply</button></div>
+                </noscript>
+            </div>
+        </form>
+    }
+
+    @* The flex layout is on an inner element: Bootstrap's d-flex is !important and would override [hidden]. *@
+    <div class="alert alert-danger" role="alert" data-grid-error hidden>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <span data-grid-error-text></span>
+            <button type="button" class="btn btn-sm btn-outline-danger" data-grid-retry>Try again</button>
+        </div>
+    </div>
+
+    <p id="@id-summary" class="text-muted small mb-2" aria-live="polite" tabindex="-1" data-grid-summary>Loading applications…</p>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle app-grid-table" aria-busy="true" aria-describedby="@id-summary" data-grid-table>
+            <caption class="@(options.ShowCaption ? "caption-top" : "visually-hidden")">@options.Caption</caption>
+            <thead class="table-light">
+                <tr>
+                    @foreach (var column in Model.Columns)
+                    {
+                        var sorted = column.Key == query.SortKey;
+                        <th scope="col" class="@column.CssClass" data-col="@column.Key"
+                            aria-sort="@(sorted ? (query.SortDirection == SortDirection.Ascending ? "ascending" : "descending") : null)">
+                            @if (column.Sortable)
+                            {
+                                <button type="button" class="app-grid-sort" data-sort="@column.Key" data-default-direction="@column.DefaultDirection">
+                                    @column.Label<span class="app-grid-sort-icon" aria-hidden="true"></span>
+                                </button>
+                            }
+                            else
+                            {
+                                <span class="visually-hidden">@column.Label</span>
+                            }
+                        </th>
+                    }
+                </tr>
+            </thead>
+            <tbody data-grid-body>
+                <tr>
+                    <td colspan="@Model.Columns.Count" class="text-center text-muted py-4">
+                        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Loading applications…
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <nav aria-label="@options.Caption pages" data-grid-pager></nav>
+
+    <noscript>
+        <div class="alert alert-info">The application list needs JavaScript to load its rows.</div>
+    </noscript>
+</section>

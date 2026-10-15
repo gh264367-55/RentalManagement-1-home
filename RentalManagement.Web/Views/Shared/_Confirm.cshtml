@@ -1,0 +1,18 @@
+@model ConfirmViewModel
+@* Confirmation modal (remove a property or unit, withdraw an application). A refused action comes back here with
+   the reason (HTTP 422). *@
+<form action="@Model.ActionUrl" method="post" data-modal-form data-refresh="@Model.Refresh">
+    @Html.AntiForgeryToken()
+    <div class="modal-header">
+        <h5 class="modal-title">@Model.Title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <div asp-validation-summary="All" class="alert alert-danger"></div>
+        <p class="mb-0">@Model.Message</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn @Model.ConfirmCss">@Model.ConfirmText</button>
+    </div>
+</form>

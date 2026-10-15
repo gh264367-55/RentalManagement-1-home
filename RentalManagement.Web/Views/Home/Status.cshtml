@@ -1,0 +1,20 @@
+@* View: Home/Status. Friendly page for an error status that has no body of its own (e.g. 404 for an application the
+   user may not see, 400 after an expired form), shown by the status-code-pages middleware. *@
+@{
+    var code = ViewData["StatusCode"] as int? ?? 500;
+    var (title, message) = code switch
+    {
+        404 => ("Not found", "That page or record doesn't exist, or you don't have access to it."),
+        400 => ("Request not accepted", "The form may have expired. Go back, reload the page and try again."),
+        403 => ("Access denied", "Your account doesn't have permission to do that."),
+        _ => ("Something went wrong", "We couldn't complete your request. Please try again in a moment."),
+    };
+    ViewData["Title"] = title;
+}
+
+<div class="py-5 text-center">
+    <p class="display-6 text-muted mb-1">@code</p>
+    <h1 class="h3">@title</h1>
+    <p class="text-muted">@message</p>
+    <a class="btn btn-outline-primary" asp-controller="Home" asp-action="Index">Go to the home page</a>
+</div>

@@ -1,0 +1,42 @@
+@model IReadOnlyList<PropertySummary>
+@* Partial: _PropertyList. One card per property (name, address, add-unit/edit/remove buttons) with the
+   PropertyUnits view component inside a refreshable #units-{id} region. *@
+
+@if (Model.Count == 0)
+{
+    <div class="text-center text-muted border rounded p-5">
+        No properties yet. Use <strong>Add property</strong> to create the first one.
+    </div>
+}
+
+@foreach (var property in Model)
+{
+    <section class="card shadow-sm mb-4" aria-labelledby="property-@property.Id-name">
+        <div class="card-header bg-body d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <h2 id="property-@property.Id-name" class="h5 mb-0">@property.Name</h2>
+                <div class="small text-muted">@property.Address</div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-primary"
+                        data-modal-url="@Url.Action("Create", "Units", new { propertyId = property.Id })">Add unit</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary"
+                        data-modal-url="@Url.Action("Edit", "Properties", new { id = property.Id })">Edit</button>
+                @if (property.CanDelete)
+                {
+                    <button type="button" class="btn btn-sm btn-outline-danger"
+                            data-modal-url="@Url.Action("Delete", "Properties", new { id = property.Id })">Remove</button>
+                }
+                else
+                {
+                    <span class="d-inline-block" tabindex="0" title="Units of this property have applications or leases">
+                        <button type="button" class="btn btn-sm btn-outline-danger" disabled>Remove</button>
+                    </span>
+                }
+            </div>
+        </div>
+        <div id="units-@property.Id" data-refresh-url="@Url.Action("ForProperty", "Units", new { propertyId = property.Id })">
+            @await Component.InvokeAsync(typeof(PropertyUnitsViewComponent), new { propertyId = property.Id })
+        </div>
+    </section>
+}

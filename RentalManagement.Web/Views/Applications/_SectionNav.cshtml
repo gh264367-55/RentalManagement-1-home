@@ -1,0 +1,44 @@
+@model ApplicationPageViewModel
+@using RentalManagement.Web.Controllers
+@* Editable: submit buttons of the one form, sharing name="command". Read-only: plain links that move between
+   sections without posting. The forward group comes first in the DOM (shown on the right by flex-row-reverse) so
+   pressing Enter in a field triggers "Save & continue", not "Back". *@
+<div class="d-flex flex-row-reverse justify-content-between align-items-center mt-4 pt-3 border-top">
+    <div>
+        @if (Model.NextSection is { } next)
+        {
+            if (Model.IsEditable)
+            {
+                <button type="submit" name="command" value="@ApplicationsController.CommandContinue" class="btn btn-primary">
+                    Save &amp; continue
+                </button>
+            }
+            else
+            {
+                <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-section="@next" class="btn btn-primary">Next</a>
+            }
+        }
+        else if (Model.IsEditable)
+        {
+            <button type="submit" name="command" value="@ApplicationsController.CommandSubmit" class="btn btn-success"
+                    disabled="@(!Model.CanSubmit)">
+                @(Model.Header.Details.Status == ApplicationStatus.Returned ? "Resubmit application" : "Submit application")
+            </button>
+        }
+    </div>
+    <div>
+        @if (Model.PreviousSection is { } previous)
+        {
+            if (Model.IsEditable)
+            {
+                <button type="submit" name="command" value="@ApplicationsController.CommandBack" class="btn btn-outline-secondary" formnovalidate>
+                    Back
+                </button>
+            }
+            else
+            {
+                <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-section="@previous" class="btn btn-outline-secondary">Back</a>
+            }
+        }
+    </div>
+</div>

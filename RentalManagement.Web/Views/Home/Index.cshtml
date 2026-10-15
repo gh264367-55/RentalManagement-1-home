@@ -1,0 +1,215 @@
+@* View: Home/Index. Public landing page. Anonymous visitors get the marketing page (hero, "How it works",
+   "For property managers", call to action) built only from the static LandingContent, so no property, unit or
+   application data is ever shown before sign-in; every listing link leads through Account/Register or Account/Login.
+   Signed-in users get a shortcut to their role's start page and a compact ApplicationGrid (the same view component as
+   Applications/Index): managers see submitted applications waiting longest first, applicants their most recently
+   updated applications. *@
+@{
+    ViewData["Title"] = "Home";
+    // The layout drops its page container so the hero and section bands can run edge to edge.
+    ViewData["FullWidth"] = true;
+    var isManager = User.IsInRole(Roles.PropertyManager);
+    var isApplicant = User.IsInRole(Roles.Applicant);
+}
+
+@if (isManager || isApplicant)
+{
+    var grid = isManager
+        ? new ApplicationGridOptions
+        {
+            Id = "home-grid",
+            Caption = "Waiting for review",
+            ShowCaption = true,
+            Query = ApplicationListQuery.Create(sortBy: "submittedDate", sortDirection: "asc", status: nameof(ApplicationStatus.Submitted)).Value!,
+            ShowFilters = false,
+            ShowPageSize = false,
+            EmptyText = "No applications are waiting for review.",
+        }
+        : new ApplicationGridOptions
+        {
+            Id = "home-grid",
+            Caption = "Your recent applications",
+            ShowCaption = true,
+            Query = ApplicationListQuery.Create(sortBy: "updatedDate").Value!,
+            ShowFilters = false,
+            ShowPageSize = false,
+        };
+
+    <section class="welcome-band" aria-labelledby="welcome-heading">
+        <div class="container">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                <div>
+                    <p class="eyebrow mb-1">@(isManager ? "Property manager" : "Applicant") dashboard</p>
+                    <h1 id="welcome-heading" class="h2 fw-bold mb-1">Welcome back</h1>
+                    <p class="text-body-secondary mb-0">
+                        @(isManager
+                            ? "Review applications, claim the next one in the queue, and keep your portfolio up to date."
+                            : "Find an available unit, continue a draft, or check where your applications stand.")
+                    </p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    @if (isManager)
+                    {
+                        <a class="btn btn-primary" asp-controller="Applications" asp-action="ReviewQueue">Open review queue</a>
+                        <a class="btn btn-outline-primary" asp-controller="Properties" asp-action="Index">Manage properties &amp; units</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-primary" asp-controller="Units" asp-action="Available">Browse available units</a>
+                        <a class="btn btn-outline-primary" asp-controller="Applications" asp-action="Index">My applications</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container py-4">
+        <div class="d-flex justify-content-end gap-3 mb-2">
+            @if (isManager)
+            {
+                <a asp-controller="Applications" asp-action="ReviewQueue">Review queue &rarr;</a>
+            }
+            <a asp-controller="Applications" asp-action="Index">@(isManager ? "All applications" : "All my applications") &rarr;</a>
+        </div>
+        <vc:application-grid options="grid" />
+    </div>
+}
+else
+{
+    <section class="hero" aria-labelledby="hero-heading">
+        <div class="container">
+            <div class="row align-items-center g-4 g-lg-5">
+                <div class="col-lg-6">
+                    <p class="hero-eyebrow">Online rental applications</p>
+                    <h1 id="hero-heading" class="hero-title">Find Your Next Home</h1>
+                    <p class="hero-lead">
+                        Discover available rental properties, submit applications online, and track your rental
+                        journey&mdash;all in one place.
+                    </p>
+                    <div class="d-flex flex-column flex-sm-row gap-3">
+                        <a class="btn btn-light btn-lg hero-btn-primary" asp-controller="Account" asp-action="Register">Create Account</a>
+                        <a class="btn btn-outline-light btn-lg" asp-controller="Account" asp-action="Login">Log In</a>
+                    </div>
+                    <p class="hero-note">
+                        <partial name="_Icon" model="@("shield")" />
+                        Listings and applications are available to signed-in members only.
+                    </p>
+                </div>
+                <div class="col-lg-6 d-none d-md-block">
+                    @* Decorative illustration only: a drawn skyline and a sample status card, no real data. *@
+                    <div class="hero-art" aria-hidden="true">
+                        <svg class="hero-skyline" viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                            <defs>
+                                <linearGradient id="hero-bldg" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0" stop-color="#ffffff" stop-opacity=".22" />
+                                    <stop offset="1" stop-color="#ffffff" stop-opacity=".06" />
+                                </linearGradient>
+                            </defs>
+                            <rect x="20" y="120" width="110" height="200" rx="6" fill="url(#hero-bldg)" />
+                            <rect x="150" y="40" width="140" height="280" rx="6" fill="url(#hero-bldg)" />
+                            <rect x="310" y="90" width="150" height="230" rx="6" fill="url(#hero-bldg)" />
+                            <g fill="#ffffff" fill-opacity=".55">
+                                @for (var row = 0; row < 7; row++)
+                                {
+                                    for (var col = 0; col < 4; col++)
+                                    {
+                                        <rect x="@(168 + col * 30)" y="@(62 + row * 34)" width="16" height="20" rx="2"
+                                              fill-opacity="@((row + col) % 3 == 0 ? ".85" : ".35")" />
+                                    }
+                                }
+                                @for (var row = 0; row < 5; row++)
+                                {
+                                    for (var col = 0; col < 3; col++)
+                                    {
+                                        <rect x="@(38 + col * 28)" y="@(142 + row * 32)" width="14" height="18" rx="2"
+                                              fill-opacity="@((row * 2 + col) % 4 == 0 ? ".85" : ".3")" />
+                                    }
+                                }
+                                @for (var row = 0; row < 6; row++)
+                                {
+                                    for (var col = 0; col < 4; col++)
+                                    {
+                                        <rect x="@(328 + col * 33)" y="@(110 + row * 33)" width="17" height="20" rx="2"
+                                              fill-opacity="@((row + col * 2) % 5 == 0 ? ".85" : ".3")" />
+                                    }
+                                }
+                            </g>
+                        </svg>
+                        <div class="hero-card hero-card-status">
+                            <span class="hero-card-dot"></span>
+                            <div>
+                                <div class="hero-card-label">Application status</div>
+                                <div class="hero-card-value">Approved &middot; lease ready</div>
+                            </div>
+                        </div>
+                        <div class="hero-card hero-card-steps">
+                            <div class="hero-card-label">Your application</div>
+                            <ol class="hero-progress">
+                                <li class="done">Applicant info</li>
+                                <li class="done">Residence history</li>
+                                <li class="current">Summary &amp; submit</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="landing-section" aria-labelledby="how-heading">
+        <div class="container">
+            <header class="section-header">
+                <p class="eyebrow">How it works</p>
+                <h2 id="how-heading" class="section-title">From sign-up to decision in three steps</h2>
+                <p class="section-lead">One account takes you from browsing to a decision on your application.</p>
+            </header>
+            <ol class="row g-4 list-unstyled mb-0">
+                @foreach (var step in LandingContent.Steps)
+                {
+                    <li class="col-md-4">
+                        <partial name="_FeatureCard" model="step" />
+                    </li>
+                }
+            </ol>
+        </div>
+    </section>
+
+    <section class="landing-section landing-section-alt" aria-labelledby="managers-heading">
+        <div class="container">
+            <div class="row g-4 g-lg-5 align-items-center">
+                <div class="col-lg-4">
+                    <header class="section-header text-lg-start mb-0">
+                        <p class="eyebrow">For property managers</p>
+                        <h2 id="managers-heading" class="section-title">Run your portfolio and review applications in one place</h2>
+                        <p class="section-lead">
+                            Keep properties and units current, and move every application from submitted to decision
+                            without stepping on a colleague's work.
+                        </p>
+                        <a class="btn btn-primary btn-lg mt-2" asp-controller="Account" asp-action="Register">Create a manager account</a>
+                    </header>
+                </div>
+                <div class="col-lg-8">
+                    <ul class="row g-4 list-unstyled mb-0">
+                        @foreach (var feature in LandingContent.ManagerFeatures)
+                        {
+                            <li class="col-sm-6">
+                                <partial name="_FeatureCard" model="feature" />
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-band" aria-labelledby="cta-heading">
+        <div class="container text-center">
+            <h2 id="cta-heading" class="cta-title">Ready to find your next home?</h2>
+            <p class="cta-lead">Create a free account to see available units and start your application.</p>
+            <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                <a class="btn btn-light btn-lg hero-btn-primary" asp-controller="Account" asp-action="Register">Create Account</a>
+                <a class="btn btn-outline-light btn-lg" asp-controller="Account" asp-action="Login">Log In</a>
+            </div>
+        </div>
+    </section>
+}

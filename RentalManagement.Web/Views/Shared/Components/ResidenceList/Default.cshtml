@@ -1,0 +1,39 @@
+@model ResidenceListModel
+@* View component template: ResidenceList. The application's prior residences, with edit/remove modal buttons
+   only when the server marked the list editable. *@
+
+@if (Model.Residences.Count == 0)
+{
+    <div class="text-muted border rounded p-4 text-center">
+        No residences added yet.@(Model.IsEditable ? " Use Add residence to list your previous homes." : "")
+    </div>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var residence in Model.Residences)
+        {
+            var r = residence.Input;
+            <li class="list-group-item">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                    <div>
+                        <div class="fw-semibold">@r.Street, @r.City, @r.State @r.PostalCode</div>
+                        <div class="small text-muted">
+                            @r.MoveInDate?.ToString("MMM d, yyyy") – @r.MoveOutDate?.ToString("MMM d, yyyy")
+                            · Landlord: @r.LandlordName, @r.LandlordPhone
+                        </div>
+                    </div>
+                    @if (Model.IsEditable)
+                    {
+                        <div class="text-nowrap">
+                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                    data-modal-url="@Url.Action("Edit", "Residences", new { id = residence.Id })">Edit</button>
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                    data-modal-url="@Url.Action("Delete", "Residences", new { id = residence.Id })">Remove</button>
+                        </div>
+                    }
+                </div>
+            </li>
+        }
+    </ul>
+}

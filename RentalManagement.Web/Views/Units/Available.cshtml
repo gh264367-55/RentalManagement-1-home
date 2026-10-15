@@ -1,0 +1,91 @@
+@model AvailableUnitsViewModel
+@* View: Units/Available. The applicant's unit browser: a GET filter form (property, bedrooms, max rent, unit
+   type) and a card per available unit with "Apply for this unit". *@
+@{
+    ViewData["Title"] = "Available units";
+}
+
+<h1 class="h3 mb-3">Available units</h1>
+
+@* A GET form: the criteria live in the URL, and the filtering runs in the database. *@
+<form asp-action="Available" method="get" class="card card-body shadow-sm mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label asp-for="PropertyId" class="form-label"></label>
+            <select asp-for="PropertyId" asp-items="Model.PropertyOptions" class="form-select">
+                <option value="">Any property</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="MinBedrooms" class="form-label"></label>
+            <select asp-for="MinBedrooms" class="form-select">
+                <option value="">Any</option>
+                @for (var bedrooms = 1; bedrooms <= 4; bedrooms++)
+                {
+                    <option value="@bedrooms" selected="@(Model.MinBedrooms == bedrooms)">@bedrooms+</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="MaxRent" class="form-label"></label>
+            <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input asp-for="MaxRent" class="form-control" type="number" min="1" step="25" />
+            </div>
+            <span asp-validation-for="MaxRent" class="text-danger small"></span>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="UnitTypeId" class="form-label"></label>
+            <select asp-for="UnitTypeId" asp-items="Model.UnitTypeOptions" class="form-select">
+                <option value="">Any type</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1">Filter</button>
+            @if (Model.HasFilter)
+            {
+                <a asp-action="Available" class="btn btn-outline-secondary">Clear</a>
+            }
+        </div>
+    </div>
+</form>
+
+<p class="text-muted">
+    @Model.Units.Count @(Model.Units.Count == 1 ? "unit is" : "units are") available today@(Model.HasFilter ? " matching your filter" : "").
+</p>
+
+@if (Model.Units.Count == 0)
+{
+    <div class="text-center text-muted border rounded p-5">No available units match. Try widening the filter.</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var unit in Model.Units)
+        {
+            <div class="col">
+                <article class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h2 class="h5 card-title mb-0">Unit @unit.UnitNumber</h2>
+                            <span class="badge text-bg-light border">@unit.UnitTypeName</span>
+                        </div>
+                        <div class="fw-semibold">@unit.PropertyName</div>
+                        <div class="small text-muted mb-3">@unit.Address</div>
+                        <div class="d-flex justify-content-between">
+                            <span>@DisplayFormat.Bedrooms(unit.Bedrooms)</span>
+                            <span class="fs-5 fw-semibold">@unit.MonthlyRent.ToString("C0")<small class="text-muted fs-6 fw-normal">/mo</small></span>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-body">
+                        @* Starts a draft, or reopens the applicant's open application for this unit. *@
+                        <form asp-controller="Applications" asp-action="Start" method="post">
+                            <input type="hidden" name="unitId" value="@unit.Id" />
+                            <button type="submit" class="btn btn-primary w-100">Apply for this unit</button>
+                        </form>
+                    </div>
+                </article>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,48 @@
+@model ReviewFormViewModel
+@* Partial: _ReviewForm. The property manager's review modal: Approve / Return / Deny, a comment (required for Return
+   and Deny) and, for Approve, the lease start date. Returned with HTTP 422 and messages when the post is refused.
+   The lease-date field is shown only while "Approve" is selected (CSS :has, no script needed). *@
+<form asp-controller="Applications" asp-action="Review" asp-route-id="@Model.ApplicationId" method="post"
+      class="review-form" data-modal-form data-refresh="@ApplicationsController.ReviewRefreshRegions">
+    <div class="modal-header">
+        <h5 class="modal-title">
+            Review application
+            <small class="d-block fs-6 text-muted fw-normal">@Model.ApplicantName · @Model.UnitLabel</small>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <fieldset class="mb-3">
+            <legend class="form-label fs-6">Outcome</legend>
+            <div class="btn-group w-100" role="group">
+                <input type="radio" class="btn-check" asp-for="Outcome" value="@ReviewOutcome.Approve" id="outcome-approve" />
+                <label class="btn btn-outline-success" for="outcome-approve">Approve</label>
+                <input type="radio" class="btn-check" asp-for="Outcome" value="@ReviewOutcome.Return" id="outcome-return" />
+                <label class="btn btn-outline-warning" for="outcome-return">Return</label>
+                <input type="radio" class="btn-check" asp-for="Outcome" value="@ReviewOutcome.Deny" id="outcome-deny" />
+                <label class="btn btn-outline-danger" for="outcome-deny">Deny</label>
+            </div>
+            <span asp-validation-for="Outcome" class="text-danger small"></span>
+        </fieldset>
+
+        <div class="mb-3 lease-start">
+            <label asp-for="LeaseStartDate" class="form-label"></label>
+            <input asp-for="LeaseStartDate" class="form-control" type="date" />
+            <div class="form-text">Twelve-month term at the current rent of @Model.MonthlyRent.ToString("C0")/month.</div>
+            <span asp-validation-for="LeaseStartDate" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-0">
+            <label asp-for="Comment" class="form-label">Comment <span class="text-muted small">(required for Return and Deny)</span></label>
+            <textarea asp-for="Comment" class="form-control" rows="3"
+                      placeholder="Shown to the applicant and kept in the application's history."></textarea>
+            <span asp-validation-for="Comment" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Record outcome</button>
+    </div>
+</form>

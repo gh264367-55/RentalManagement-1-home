@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="RentalManagement.Web/RentalManagement.Web.csproj" />
+  <Project Path="RentalManagement.Core/RentalManagement.Core.csproj" />
+  <Project Path="RentalManagement.Tests/RentalManagement.Tests.csproj" />
+</Solution>

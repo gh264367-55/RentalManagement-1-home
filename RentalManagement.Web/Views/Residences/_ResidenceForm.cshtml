@@ -1,0 +1,61 @@
+@model ResidenceFormViewModel
+@using RentalManagement.Web.Controllers
+@* Add/edit residence modal. Returned by GET Create/Edit, and again with HTTP 422 when the post is invalid. *@
+<form asp-controller="Residences" asp-action="@(Model.IsNew ? "Create" : "Edit")" asp-route-id="@Model.Id" method="post"
+      data-modal-form data-refresh="@ResidencesController.RefreshRegion">
+    <div class="modal-header">
+        <h5 class="modal-title">@(Model.IsNew ? "Add residence" : "Edit residence")</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <input asp-for="ApplicationId" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="row g-3">
+            <div class="col-12">
+                <label asp-for="Street" class="form-label"></label>
+                <input asp-for="Street" class="form-control" autofocus />
+                <span asp-validation-for="Street" class="text-danger small"></span>
+            </div>
+            <div class="col-sm-5">
+                <label asp-for="City" class="form-label"></label>
+                <input asp-for="City" class="form-control" />
+                <span asp-validation-for="City" class="text-danger small"></span>
+            </div>
+            <div class="col-sm-3">
+                <label asp-for="State" class="form-label"></label>
+                <input asp-for="State" class="form-control" />
+                <span asp-validation-for="State" class="text-danger small"></span>
+            </div>
+            <div class="col-sm-4">
+                <label asp-for="PostalCode" class="form-label"></label>
+                <input asp-for="PostalCode" class="form-control" />
+                <span asp-validation-for="PostalCode" class="text-danger small"></span>
+            </div>
+            <div class="col-sm-6">
+                <label asp-for="LandlordName" class="form-label"></label>
+                <input asp-for="LandlordName" class="form-control" />
+                <span asp-validation-for="LandlordName" class="text-danger small"></span>
+            </div>
+            <div class="col-sm-6">
+                <label asp-for="LandlordPhone" class="form-label"></label>
+                <input asp-for="LandlordPhone" class="form-control" placeholder="(518) 555-0123" />
+                <span asp-validation-for="LandlordPhone" class="text-danger small"></span>
+            </div>
+            <div class="col-sm-6">
+                <label asp-for="MoveInDate" class="form-label"></label>
+                <input asp-for="MoveInDate" class="form-control" type="date" />
+                <span asp-validation-for="MoveInDate" class="text-danger small"></span>
+            </div>
+            <div class="col-sm-6">
+                <label asp-for="MoveOutDate" class="form-label"></label>
+                <input asp-for="MoveOutDate" class="form-control" type="date" />
+                <span asp-validation-for="MoveOutDate" class="text-danger small"></span>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">@(Model.IsNew ? "Add residence" : "Save changes")</button>
+    </div>
+</form>

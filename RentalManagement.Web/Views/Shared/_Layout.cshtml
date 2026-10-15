@@ -1,0 +1,106 @@
+@* Layout: the shared page shell. Bootstrap 5 navbar with role-specific links and the login partial, one-time
+   alerts, the shared #app-modal used by site.js, toast container, and scripts (jQuery, Bootstrap, validation,
+   site.js, application-grid.js). A view sets ViewData["FullWidth"] = true to lay out its own full-width bands
+   (the landing page); every other page keeps the standard centred container. *@
+@{
+    // The current section of the site is highlighted in the navbar (and announced with aria-current).
+    var currentController = ViewContext.RouteData.Values["controller"] as string;
+    var currentAction = ViewContext.RouteData.Values["action"] as string;
+    // The review queue is an Applications action with its own nav link, so it is told apart by action.
+    var onReviewQueue = string.Equals(currentController, "Applications", StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(currentAction, "ReviewQueue", StringComparison.OrdinalIgnoreCase);
+    bool IsCurrent(string controller) => controller == "ReviewQueue"
+        ? onReviewQueue
+        : !onReviewQueue && string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase);
+    string NavCss(string controller) => IsCurrent(controller) ? "nav-link active fw-semibold" : "nav-link text-dark";
+    string? AriaCurrent(string controller) => IsCurrent(controller) ? "page" : null;
+    var fullWidth = ViewData["FullWidth"] is true;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Rental Management</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/RentalManagement.Web.styles.css" asp-append-version="true" />
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <a class="visually-hidden-focusable skip-link" href="#main-content">Skip to main content</a>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-toggleable-lg navbar-light bg-white border-bottom box-shadow app-navbar @(fullWidth ? null : "mb-3")" aria-label="Main">
+            <div class="container">
+                <a class="navbar-brand app-brand" asp-controller="Home" asp-action="Index">
+                    <span class="app-brand-mark"><partial name="_Icon" model="@("home")" /></span>
+                    Rental Management
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        @if (User.IsInRole(Roles.PropertyManager))
+                        {
+                            <li class="nav-item">
+                                <a class="@NavCss("ReviewQueue")" aria-current="@AriaCurrent("ReviewQueue")" asp-controller="Applications" asp-action="ReviewQueue">Review queue</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="@NavCss("Applications")" aria-current="@AriaCurrent("Applications")" asp-controller="Applications" asp-action="Index">Applications</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="@NavCss("Properties")" aria-current="@AriaCurrent("Properties")" asp-controller="Properties" asp-action="Index">Properties &amp; units</a>
+                            </li>
+                        }
+                        @if (User.IsInRole(Roles.Applicant))
+                        {
+                            <li class="nav-item">
+                                <a class="@NavCss("Units")" aria-current="@AriaCurrent("Units")" asp-controller="Units" asp-action="Available">Available units</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="@NavCss("Applications")" aria-current="@AriaCurrent("Applications")" asp-controller="Applications" asp-action="Index">My applications</a>
+                            </li>
+                        }
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div id="page-alerts" class="toast-container position-fixed top-0 end-0 p-3" aria-live="polite"></div>
+    <main id="main-content" role="main" tabindex="-1" class="flex-grow-1 @(fullWidth ? null : "container pb-3")">
+        @if (fullWidth)
+        {
+            <div class="container"><partial name="_Alerts" /></div>
+        }
+        else
+        {
+            <partial name="_Alerts" />
+        }
+        @RenderBody()
+    </main>
+
+    <footer class="border-top footer text-body-secondary">
+        <div class="container d-flex flex-column flex-sm-row justify-content-between gap-1 py-3">
+            <span>&copy; 2026 Rental Management</span>
+            <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    @* Shared modal. site.js fills .modal-content with a partial view returned by a controller action. *@
+    <div class="modal fade" id="app-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/application-grid.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

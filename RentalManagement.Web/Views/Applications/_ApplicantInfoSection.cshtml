@@ -1,0 +1,67 @@
+@model ApplicantInfoViewModel
+@* Section 1. Editable inputs or a read-only summary of the same data, decided on the server by Model.IsEditable.
+   Rendered with <partial for="ApplicantInfo">, so inputs are named ApplicantInfo.FirstName, … *@
+@if (Model.IsEditable)
+{
+    <div class="row g-3">
+        <div class="col-sm-6">
+            <label asp-for="FirstName" class="form-label"></label>
+            <input asp-for="FirstName" class="form-control" autocomplete="given-name" />
+            <span asp-validation-for="FirstName" class="text-danger small"></span>
+        </div>
+        <div class="col-sm-6">
+            <label asp-for="LastName" class="form-label"></label>
+            <input asp-for="LastName" class="form-control" autocomplete="family-name" />
+            <span asp-validation-for="LastName" class="text-danger small"></span>
+        </div>
+        <div class="col-sm-6">
+            <label asp-for="Phone" class="form-label"></label>
+            <input asp-for="Phone" class="form-control" autocomplete="tel" placeholder="(518) 555-0123" />
+            <span asp-validation-for="Phone" class="text-danger small"></span>
+        </div>
+        <div class="col-sm-6">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" autocomplete="email" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <h3 class="h6 mt-4 mb-3">Current address</h3>
+    <div class="row g-3">
+        <div class="col-12">
+            <label asp-for="Street" class="form-label"></label>
+            <input asp-for="Street" class="form-control" autocomplete="street-address" />
+            <span asp-validation-for="Street" class="text-danger small"></span>
+        </div>
+        <div class="col-sm-5">
+            <label asp-for="City" class="form-label"></label>
+            <input asp-for="City" class="form-control" autocomplete="address-level2" />
+            <span asp-validation-for="City" class="text-danger small"></span>
+        </div>
+        <div class="col-sm-3">
+            <label asp-for="State" class="form-label"></label>
+            <input asp-for="State" class="form-control" autocomplete="address-level1" />
+            <span asp-validation-for="State" class="text-danger small"></span>
+        </div>
+        <div class="col-sm-4">
+            <label asp-for="PostalCode" class="form-label"></label>
+            <input asp-for="PostalCode" class="form-control" autocomplete="postal-code" />
+            <span asp-validation-for="PostalCode" class="text-danger small"></span>
+        </div>
+    </div>
+}
+else
+{
+    var name = $"{Model.FirstName} {Model.LastName}".Trim();
+    var address = string.IsNullOrWhiteSpace(Model.Street) ? null : $"{Model.Street}, {Model.City}, {Model.State} {Model.PostalCode}";
+    <dl class="row mb-0">
+        <dt class="col-sm-4">Name</dt>
+        <dd class="col-sm-8">@(string.IsNullOrEmpty(name) ? "Not provided" : name)</dd>
+        <dt class="col-sm-4">Phone</dt>
+        <dd class="col-sm-8">@(Model.Phone ?? "Not provided")</dd>
+        <dt class="col-sm-4">Email</dt>
+        <dd class="col-sm-8">@(Model.Email ?? "Not provided")</dd>
+        <dt class="col-sm-4">Current address</dt>
+        <dd class="col-sm-8 mb-0">@(address ?? "Not provided")</dd>
+    </dl>
+}

@@ -1,0 +1,18 @@
+@model ApplicationPageViewModel
+@* Renders only the section on screen. Each section is its own partial (or view component) and renders editable
+   or read-only as the server decided. *@
+@switch (Model.CurrentSection)
+{
+    case ApplicationSection.ApplicantInfo:
+        <h2 class="h5 mb-3">Applicant information</h2>
+        <partial name="_ApplicantInfoSection" for="ApplicantInfo" />
+        break;
+
+    case ApplicationSection.ResidenceHistory:
+        <partial name="_ResidenceHistorySection" model="Model" />
+        break;
+
+    default:
+        <partial name="_SummarySection" model="Model" />
+        break;
+}

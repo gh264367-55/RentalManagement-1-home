@@ -1,0 +1,503 @@
+/* Brand palette. Bootstrap's own variables are pointed at it so links, outline buttons and focus rings match. The
+   primary blue gives white text a 6.7:1 contrast ratio (WCAG AA needs 4.5:1). */
+:root {
+  --app-primary: #1d4ed8;
+  --app-primary-hover: #1e40af;
+  --app-primary-rgb: 29, 78, 216;
+  --app-navy: #0f1f3d;
+  --app-navy-2: #17366b;
+  --app-surface-alt: #f4f7fb;
+  --app-radius: 0.875rem;
+  --bs-primary: var(--app-primary);
+  --bs-primary-rgb: var(--app-primary-rgb);
+  --bs-link-color: var(--app-primary);
+  --bs-link-color-rgb: var(--app-primary-rgb);
+  --bs-link-hover-color: var(--app-primary-hover);
+  --bs-link-hover-color-rgb: 30, 64, 175;
+  --bs-body-font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+/* An empty validation summary renders with this class; hide it so no empty alert box shows. */
+.validation-summary-valid {
+  display: none;
+}
+
+.validation-summary-errors ul {
+  margin-bottom: 0;
+  padding-left: 1.25rem;
+}
+
+/* Client-side validation marks invalid inputs with this class; reuse Bootstrap's invalid styling. */
+.input-validation-error {
+  border-color: var(--bs-form-invalid-border-color);
+}
+
+/* Review modal: the lease start date only matters when approving, so show it only while "Approve" is selected. */
+.review-form .lease-start {
+  display: none;
+}
+
+.review-form:has(#outcome-approve:checked) .lease-start {
+  display: block;
+}
+
+/* Application grid: header sort buttons look like header text; aria-sort on the <th> drives the arrow. */
+.app-grid-sort {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-weight: inherit;
+  white-space: nowrap;
+}
+
+.app-grid-sort:hover {
+  text-decoration: underline;
+}
+
+.app-grid-sort:focus-visible {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.app-grid-sort-icon::after {
+  content: "\2195"; /* ↕ unsorted */
+  margin-left: 0.25rem;
+  opacity: 0.35;
+}
+
+th[aria-sort="ascending"] .app-grid-sort-icon::after {
+  content: "\25B2"; /* ▲ */
+  opacity: 1;
+}
+
+th[aria-sort="descending"] .app-grid-sort-icon::after {
+  content: "\25BC"; /* ▼ */
+  opacity: 1;
+}
+
+/* While a page is loading the old rows stay visible, dimmed. */
+.app-grid-table[aria-busy="true"] tbody {
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+
+/* ---------------------------------------------------------------------------------------------------------------------
+   Brand buttons and shell. Bootstrap's button variables are overridden (not the rules), so hover/active/disabled
+   states keep working.
+   ------------------------------------------------------------------------------------------------------------------ */
+.btn-primary {
+  --bs-btn-bg: var(--app-primary);
+  --bs-btn-border-color: var(--app-primary);
+  --bs-btn-hover-bg: var(--app-primary-hover);
+  --bs-btn-hover-border-color: var(--app-primary-hover);
+  --bs-btn-active-bg: var(--app-primary-hover);
+  --bs-btn-active-border-color: var(--app-primary-hover);
+  --bs-btn-disabled-bg: var(--app-primary);
+  --bs-btn-disabled-border-color: var(--app-primary);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--app-primary);
+  --bs-btn-border-color: var(--app-primary);
+  --bs-btn-hover-bg: var(--app-primary);
+  --bs-btn-hover-border-color: var(--app-primary);
+  --bs-btn-active-bg: var(--app-primary-hover);
+  --bs-btn-active-border-color: var(--app-primary-hover);
+  --bs-btn-disabled-color: var(--app-primary);
+  --bs-btn-disabled-border-color: var(--app-primary);
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+  background-color: var(--app-primary);
+}
+
+.btn-lg {
+  --bs-btn-padding-x: 1.5rem;
+  --bs-btn-font-weight: 600;
+}
+
+/* Skip link: hidden until focused with the keyboard, then shown above the navbar. */
+.skip-link {
+  position: absolute;
+  top: .5rem;
+  left: .5rem;
+  z-index: 1080;
+  padding: .5rem 1rem;
+  border-radius: .5rem;
+  background: #fff;
+  color: var(--app-primary);
+  font-weight: 600;
+  box-shadow: 0 0 0 .2rem rgba(var(--app-primary-rgb), .5);
+}
+
+main:focus {
+  outline: none;
+}
+
+.app-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+
+.app-navbar .nav-link.active {
+  color: var(--app-primary);
+}
+
+.app-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--app-navy);
+}
+
+.app-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: .5rem;
+  background: var(--app-primary);
+  color: #fff;
+}
+
+.app-brand-mark .app-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+/* ---------------------------------------------------------------------------------------------------------------------
+   Landing page (Home/Index). Section bands are full width; content sits in Bootstrap containers.
+   ------------------------------------------------------------------------------------------------------------------ */
+.eyebrow {
+  margin-bottom: .5rem;
+  font-size: .8125rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--app-primary);
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 4rem 0 4.5rem;
+  color: #fff;
+  background:
+    radial-gradient(circle at 85% 15%, rgba(96, 165, 250, .35), transparent 45%),
+    radial-gradient(circle at 10% 90%, rgba(29, 78, 216, .45), transparent 50%),
+    linear-gradient(135deg, var(--app-navy) 0%, var(--app-navy-2) 100%);
+}
+
+@media (min-width: 992px) {
+  .hero {
+    padding: 6rem 0;
+  }
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: .3rem .8rem;
+  border: 1px solid rgba(255, 255, 255, .3);
+  border-radius: 999px;
+  font-size: .8125rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: #dbeafe;
+}
+
+.hero-title {
+  margin-bottom: 1rem;
+  font-size: calc(2.25rem + 2vw);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -.03em;
+}
+
+@media (min-width: 1200px) {
+  .hero-title {
+    font-size: 4rem;
+  }
+}
+
+.hero-lead {
+  max-width: 34rem;
+  margin-bottom: 2rem;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: #dbe4f3; /* over 10:1 on the navy background */
+}
+
+.hero-btn-primary {
+  --bs-btn-color: var(--app-primary);
+  --bs-btn-hover-color: var(--app-primary-hover);
+  --bs-btn-active-color: var(--app-primary-hover);
+}
+
+.hero .btn:focus-visible,
+.cta-band .btn:focus-visible {
+  box-shadow: 0 0 0 .25rem rgba(255, 255, 255, .6);
+}
+
+.hero-note {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin: 1.5rem 0 0;
+  font-size: .9rem;
+  color: #c7d4ea;
+}
+
+.hero-note .app-icon {
+  flex-shrink: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.hero-art {
+  position: relative;
+  max-width: 520px;
+  margin-left: auto;
+}
+
+.hero-skyline {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.hero-card {
+  position: absolute;
+  padding: .875rem 1.1rem;
+  border-radius: var(--app-radius);
+  background: #fff;
+  color: #1f2937;
+  box-shadow: 0 1.25rem 2.5rem rgba(2, 6, 23, .35);
+}
+
+.hero-card-status {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  left: 0;
+  bottom: 2.5rem;
+}
+
+.hero-card-steps {
+  top: 1.5rem;
+  right: 0;
+  min-width: 13rem;
+}
+
+.hero-card-dot {
+  width: .75rem;
+  height: .75rem;
+  border-radius: 50%;
+  background: #16a34a;
+  box-shadow: 0 0 0 .3rem rgba(22, 163, 74, .2);
+}
+
+.hero-card-label {
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #6b7280;
+}
+
+.hero-card-value {
+  font-weight: 700;
+}
+
+.hero-progress {
+  margin: .5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: .875rem;
+}
+
+.hero-progress li {
+  position: relative;
+  padding-left: 1.5rem;
+  line-height: 1.9;
+}
+
+.hero-progress li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: .45em;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+}
+
+.hero-progress li.done::before {
+  border-color: #16a34a;
+  background: #16a34a;
+}
+
+.hero-progress li.current {
+  font-weight: 700;
+}
+
+.hero-progress li.current::before {
+  border-color: var(--app-primary);
+}
+
+.landing-section {
+  padding: 4.5rem 0;
+}
+
+.landing-section-alt {
+  background: var(--app-surface-alt);
+}
+
+.section-header {
+  max-width: 44rem;
+  margin: 0 auto 3rem;
+  text-align: center;
+}
+
+.section-title {
+  margin-bottom: .75rem;
+  font-size: calc(1.5rem + .9vw);
+  font-weight: 800;
+  letter-spacing: -.02em;
+  color: var(--app-navy);
+}
+
+@media (min-width: 1200px) {
+  .section-title {
+    font-size: 2.25rem;
+  }
+}
+
+.section-lead {
+  font-size: 1.1rem;
+  color: #4b5563;
+}
+
+.feature-card {
+  padding: 1.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--app-radius);
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 .75rem 1.5rem rgba(15, 23, 42, .08);
+}
+
+.feature-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1rem;
+  border-radius: .75rem;
+  background: rgba(var(--app-primary-rgb), .1);
+  color: var(--app-primary);
+}
+
+.feature-card-step {
+  margin-bottom: .25rem;
+  font-size: .8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--app-primary);
+}
+
+.feature-card-title {
+  margin-bottom: .5rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--app-navy);
+}
+
+.feature-card-text {
+  margin-bottom: 0;
+  color: #4b5563; /* 7.6:1 on white */
+}
+
+.cta-band {
+  padding: 4rem 0;
+  color: #fff;
+  background: linear-gradient(135deg, var(--app-primary) 0%, var(--app-navy-2) 100%);
+}
+
+.cta-title {
+  margin-bottom: .75rem;
+  font-size: calc(1.5rem + .9vw);
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+
+@media (min-width: 1200px) {
+  .cta-title {
+    font-size: 2.25rem;
+  }
+}
+
+.cta-lead {
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  color: #e0eaff;
+}
+
+/* Signed-in home: a light welcome band above the application grid. */
+.welcome-band {
+  padding: 2.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+  background: var(--app-surface-alt);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feature-card,
+  .app-grid-table[aria-busy="true"] tbody {
+    transition: none;
+  }
+
+  .feature-card:hover {
+    transform: none;
+  }
+}

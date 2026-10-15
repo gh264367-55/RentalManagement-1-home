@@ -1,0 +1,51 @@
+@model UnitFormViewModel
+@* Add/edit unit modal. The unit-type list holds active types plus this unit's own (possibly inactive) type; the
+   server re-checks the choice against the persisted type, so editing the HTML can't select an inactive type. *@
+<form asp-controller="Units" asp-action="@(Model.IsNew ? "Create" : "Edit")" asp-route-id="@Model.Id" method="post"
+      data-modal-form data-refresh="@UnitsController.RefreshRegions(Model.PropertyId)">
+    <div class="modal-header">
+        <h5 class="modal-title">
+            @(Model.IsNew ? "Add unit" : $"Edit unit {Model.UnitNumber}")
+            <small class="d-block fs-6 text-muted fw-normal">@Model.PropertyName</small>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <input asp-for="PropertyId" type="hidden" />
+        <input asp-for="ConcurrencyStamp" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="row g-3">
+            <div class="col-sm-6">
+                <label asp-for="UnitNumber" class="form-label"></label>
+                <input asp-for="UnitNumber" class="form-control" autofocus />
+                <span asp-validation-for="UnitNumber" class="text-danger small"></span>
+            </div>
+            <div class="col-sm-6">
+                <label asp-for="UnitTypeId" class="form-label"></label>
+                <select asp-for="UnitTypeId" asp-items="Model.UnitTypeOptions" class="form-select">
+                    <option value="">Choose…</option>
+                </select>
+                <span asp-validation-for="UnitTypeId" class="text-danger small"></span>
+            </div>
+            <div class="col-sm-6">
+                <label asp-for="Bedrooms" class="form-label"></label>
+                <input asp-for="Bedrooms" class="form-control" type="number" min="0" max="10" step="1" />
+                <div class="form-text">0 for a studio.</div>
+                <span asp-validation-for="Bedrooms" class="text-danger small"></span>
+            </div>
+            <div class="col-sm-6">
+                <label asp-for="MonthlyRent" class="form-label"></label>
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input asp-for="MonthlyRent" class="form-control" type="number" min="1" step="0.01" />
+                </div>
+                <span asp-validation-for="MonthlyRent" class="text-danger small"></span>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">@(Model.IsNew ? "Add unit" : "Save changes")</button>
+    </div>
+</form>

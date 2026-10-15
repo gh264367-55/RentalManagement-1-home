@@ -1,0 +1,18 @@
+@model ApplicationListViewModel
+@* View: Applications/Index. "My applications" for applicants, or every application for property managers. The list is
+   the reusable ApplicationGrid view component: filters, sorting and paging run on the server through
+   GET /api/applications/grid, and the grid keeps its state in the address bar so a list can be bookmarked. *@
+@{
+    var isManager = Model.IsManager;
+    ViewData["Title"] = isManager ? "Applications" : "My applications";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">@ViewData["Title"]</h1>
+    @if (!isManager)
+    {
+        <a asp-controller="Units" asp-action="Available" class="btn btn-primary">Find a unit to apply for</a>
+    }
+</div>
+
+<vc:application-grid options="Model.Grid" />

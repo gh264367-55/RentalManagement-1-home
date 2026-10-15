@@ -1,0 +1,20 @@
+@model IReadOnlyList<PropertySummary>
+@* View: Properties/Index. "Properties & units" for property managers: the portfolio summary view component and
+   the property list, each a refreshable region. *@
+@{
+    ViewData["Title"] = "Properties & units";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">Properties &amp; units</h1>
+    <button type="button" class="btn btn-primary" data-modal-url="@Url.Action("Create")">Add property</button>
+</div>
+
+@* Each region names the URL that re-renders it; a modal form lists the regions it affects in data-refresh. *@
+<div id="portfolio-summary" class="mb-4" data-refresh-url="@Url.Action("Summary")">
+    @await Component.InvokeAsync(typeof(PortfolioSummaryViewComponent))
+</div>
+
+<div id="property-list" data-refresh-url="@Url.Action("List")">
+    <partial name="_PropertyList" model="Model" />
+</div>

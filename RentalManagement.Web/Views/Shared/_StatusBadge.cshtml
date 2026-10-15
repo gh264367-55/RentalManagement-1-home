@@ -1,0 +1,3 @@
+@model ApplicationStatus
+@* Partial: _StatusBadge. A Bootstrap badge for an application status, colour-coded by StatusDisplay.BadgeCss. *@
+<span class="badge @StatusDisplay.BadgeCss(Model)">@StatusDisplay.Label(Model)</span>

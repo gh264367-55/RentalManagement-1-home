@@ -1,0 +1,34 @@
+@model ApplicationPageViewModel
+@* The Summary: both sections read-only, rendered by the same section partial and view component as the editable
+   sections, plus what (if anything) still blocks submission. *@
+<h2 class="h5 mb-3">Summary</h2>
+
+@if (Model.IsEditable)
+{
+    @if (Model.SubmitBlockers.Count > 0)
+    {
+        <div class="alert alert-warning">
+            <div class="fw-semibold mb-1">Before you can submit:</div>
+            <ul class="mb-0">
+                @foreach (var blocker in Model.SubmitBlockers)
+                {
+                    <li>@blocker</li>
+                }
+            </ul>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success">Both sections are saved. Review them below, then submit your application.</div>
+    }
+}
+
+<section class="mb-4">
+    <h3 class="h6 text-uppercase text-muted">Applicant information</h3>
+    <partial name="_ApplicantInfoSection" model="Model.ApplicantInfo.AsReadOnly()" />
+</section>
+
+<section>
+    <h3 class="h6 text-uppercase text-muted">Residence history</h3>
+    @await Component.InvokeAsync(typeof(ResidenceListViewComponent), new { applicationId = Model.Id, editable = false })
+</section>

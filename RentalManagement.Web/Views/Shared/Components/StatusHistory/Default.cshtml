@@ -1,0 +1,62 @@
+@model StatusHistoryModel
+@* View component template: StatusHistory. The application's status changes, oldest first: when, who, from → to, the
+   review outcome (or claim / release) and the comment. Property managers only (the view component renders nothing for others). *@
+@{
+    static string Date(DateTimeOffset value) => value.ToLocalTime().ToString("MMM d, yyyy h:mm tt");
+}
+
+<div class="card shadow-sm mt-4">
+    <div class="card-header bg-body fw-semibold">History</div>
+    @if (Model.Entries.Count == 0)
+    {
+        <div class="card-body text-muted small">No status changes recorded.</div>
+    }
+    else
+    {
+        <ol class="list-group list-group-flush">
+            @foreach (var entry in Model.Entries)
+            {
+                <li class="list-group-item">
+                    <div class="d-flex flex-wrap justify-content-between gap-2">
+                        <div>
+                            @if (entry.FromStatus is { } from)
+                            {
+                                <partial name="_StatusBadge" model="from" />
+                                <span class="text-muted mx-1" aria-label="to">→</span>
+                            }
+                            else
+                            {
+                                <span class="small text-muted me-1">Created as</span>
+                            }
+                            <partial name="_StatusBadge" model="entry.ToStatus" />
+                            @if (entry.Outcome is { } outcome)
+                            {
+                                <span class="small text-muted ms-2">Review: @outcome</span>
+                            }
+                            else if (entry.ToStatus == ApplicationStatus.UnderReview)
+                            {
+                                <span class="small text-muted ms-2">Claimed for review</span>
+                            }
+                            else if (entry.FromStatus == ApplicationStatus.UnderReview && entry.ToStatus == ApplicationStatus.Submitted)
+                            {
+                                <span class="small text-muted ms-2">Released to the queue</span>
+                            }
+                        </div>
+                        <div class="small text-muted text-nowrap">@Date(entry.ChangedAt)</div>
+                    </div>
+                    <div class="small mt-1">
+                        by <span class="fw-semibold">@entry.ChangedByName</span>
+                        @if (!string.IsNullOrEmpty(entry.ChangedByEmail))
+                        {
+                            <span class="text-muted">(@entry.ChangedByEmail)</span>
+                        }
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(entry.Comment))
+                    {
+                        <blockquote class="small border-start border-3 ps-2 mt-2 mb-0">@entry.Comment</blockquote>
+                    }
+                </li>
+            }
+        </ol>
+    }
+</div>

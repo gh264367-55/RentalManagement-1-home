@@ -1,0 +1,112 @@
+@model ApplicationStatusModel
+@* View component template: ApplicationStatus. The status card: badge, unit, rent and dates, the lease once
+   approved, the latest reviewer comment for Returned/Denied, the review claim (managers only), the Claim button
+   (managers, Submitted), Review and Release (the manager who holds the claim) and the Withdraw button (the owning
+   applicant, while still open). *@
+@{
+    var d = Model.Details;
+    var review = d.LatestReview;
+    static string Date(DateTimeOffset value) => value.ToLocalTime().ToString("MMM d, yyyy");
+}
+
+<div class="card shadow-sm">
+    <div class="card-header bg-body d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">Status</span>
+        <partial name="_StatusBadge" model="d.Status" />
+    </div>
+    <div class="card-body">
+        <dl class="row small mb-0">
+            @if (Model.IsManager)
+            {
+                <dt class="col-5">Applicant</dt>
+                <dd class="col-7">@d.ApplicantName</dd>
+            }
+            <dt class="col-5">Unit</dt>
+            <dd class="col-7">@d.UnitNumber, @d.PropertyName</dd>
+            <dt class="col-5">Monthly rent</dt>
+            <dd class="col-7">@d.MonthlyRent.ToString("C0")</dd>
+            <dt class="col-5">Started</dt>
+            <dd class="col-7">@Date(d.CreatedAt)</dd>
+            @if (d.SubmittedAt is { } submitted)
+            {
+                <dt class="col-5">Submitted</dt>
+                <dd class="col-7">@Date(submitted)</dd>
+            }
+            <dt class="col-5">Last updated</dt>
+            <dd class="col-7 mb-0">@Date(d.UpdatedAt)</dd>
+        </dl>
+
+        @if (d.Lease is { } lease)
+        {
+            <div class="alert alert-success small mt-3 mb-0">
+                <div class="fw-semibold">Lease issued</div>
+                @lease.StartDate.ToString("MMM d, yyyy") – @lease.EndDate.ToString("MMM d, yyyy") at @lease.MonthlyRent.ToString("C0")/month
+            </div>
+        }
+
+        @if (review is not null && d.Status is ApplicationStatus.Returned or ApplicationStatus.Denied)
+        {
+            <div class="alert @(d.Status == ApplicationStatus.Returned ? "alert-warning" : "alert-danger") small mt-3 mb-0">
+                <div class="fw-semibold">@(d.Status == ApplicationStatus.Returned ? "Returned for corrections" : "Application denied")</div>
+                @if (!string.IsNullOrWhiteSpace(review.Comment))
+                {
+                    <p class="mb-1">“@review.Comment”</p>
+                }
+                <div class="text-muted">@review.ReviewerName, @Date(review.At)</div>
+                @if (d.Status == ApplicationStatus.Returned && !Model.IsManager)
+                {
+                    <div class="mt-2">Correct the sections, then resubmit from the Summary.</div>
+                }
+            </div>
+        }
+
+        @if (d.Status is ApplicationStatus.Submitted or ApplicationStatus.UnderReview && !Model.IsManager)
+        {
+            <p class="small text-muted mt-3 mb-0">Your application is with the property manager for review.</p>
+        }
+
+        @if (Model.IsManager && d.Status == ApplicationStatus.UnderReview)
+        {
+            @* The claim is shown to managers only; ApplicationDetails carries no claim data for applicants. *@
+            <div class="alert alert-info small mt-3 mb-0">
+                <div class="fw-semibold">@(Model.CanReview ? "You are reviewing this application" : $"Being reviewed by {d.ClaimedByName}")</div>
+                @if (d.ClaimedAt is { } claimedAt)
+                {
+                    <div class="text-muted">Claimed @claimedAt.ToLocalTime().ToString("MMM d, yyyy h:mm tt")</div>
+                }
+            </div>
+        }
+    </div>
+    @if (Model.CanClaim)
+    {
+        @* Claiming is a plain POST (site.js sends it with fetch and refreshes the card); it works without script too. *@
+        <div class="card-footer bg-body">
+            <form asp-controller="Applications" asp-action="Claim" asp-route-id="@d.Id" method="post"
+                  data-ajax-form data-refresh="@ApplicationsController.ReviewRefreshRegions">
+                <button type="submit" class="btn btn-sm btn-primary w-100">Claim for review</button>
+            </form>
+            <div class="small text-muted mt-2">Claim it to review it; other managers then can't review it until you release it.</div>
+        </div>
+    }
+    @if (Model.CanReview)
+    {
+        @* Opens the review modal; the warning saves a manager from trying an approval the server will refuse. *@
+        <div class="card-footer bg-body d-flex flex-column gap-2">
+            <button type="button" class="btn btn-sm btn-primary w-100"
+                    data-modal-url="@Url.Action("Review", "Applications", new { id = d.Id })">Review application</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary w-100"
+                    data-modal-url="@Url.Action("Release", "Applications", new { id = d.Id })">Release to queue</button>
+            @if (d.UnitHasActiveLease)
+            {
+                <div class="small text-danger">This unit has an active lease, so this application can't be approved.</div>
+            }
+        </div>
+    }
+    @if (Model.CanWithdraw)
+    {
+        <div class="card-footer bg-body">
+            <button type="button" class="btn btn-sm btn-outline-danger w-100"
+                    data-modal-url="@Url.Action("Withdraw", "Applications", new { id = d.Id })">Withdraw application</button>
+        </div>
+    }
+</div>

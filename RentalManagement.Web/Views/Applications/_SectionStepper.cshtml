@@ -1,0 +1,22 @@
+@model ApplicationPageViewModel
+@* Progress indicator. It is not a navigation control: moving between sections is done with Back / Save & continue. *@
+<ol class="list-unstyled d-flex gap-2 mb-3" aria-label="Application sections">
+    @foreach (var section in Enum.GetValues<ApplicationSection>())
+    {
+        var isCurrent = section == Model.CurrentSection;
+        var isComplete = Model.Header.IsSectionComplete(section);
+        <li class="flex-fill">
+            <div class="border rounded px-3 py-2 h-100 @(isCurrent ? "border-primary bg-primary-subtle" : "bg-body")"
+                 aria-current="@(isCurrent ? "step" : null)">
+                <div class="small text-muted">Step @((int)section + 1)</div>
+                <div class="fw-semibold">
+                    @StatusDisplay.SectionTitle(section)
+                    @if (isComplete)
+                    {
+                        <span class="badge text-bg-success ms-1">Saved</span>
+                    }
+                </div>
+            </div>
+        </li>
+    }
+</ol>

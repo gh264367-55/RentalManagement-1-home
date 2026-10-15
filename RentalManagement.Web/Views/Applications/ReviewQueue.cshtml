@@ -1,0 +1,27 @@
+@model ReviewQueueViewModel
+@* View: Applications/ReviewQueue. The property manager's review queue: "Available for review" (Submitted, unclaimed,
+   with Claim) above "My claimed applications" (Under Review, claimed by me, with Review and Release). Both are the
+   reusable ApplicationGrid view component in queue mode, so filtering, sorting and paging run in SQL through
+   GET /api/applications/review-queue. A claim, release or review reloads both grids in place (site.js "app:changed"). *@
+@{
+    ViewData["Title"] = "Review queue";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+    <h1 class="h3 mb-0">@ViewData["Title"]</h1>
+    <a asp-action="Index">All applications &rarr;</a>
+</div>
+<p class="text-muted">
+    Claim a submitted application to review it. While you hold the claim it is <strong>Under Review</strong> and no
+    other manager can review it; release it to put it back in the queue.
+</p>
+
+<section class="mb-5" aria-labelledby="available-heading">
+    <h2 id="available-heading" class="h5">Available for review</h2>
+    <vc:application-grid options="Model.Available" />
+</section>
+
+<section aria-labelledby="mine-heading">
+    <h2 id="mine-heading" class="h5">My claimed applications</h2>
+    <vc:application-grid options="Model.MyClaims" />
+</section>

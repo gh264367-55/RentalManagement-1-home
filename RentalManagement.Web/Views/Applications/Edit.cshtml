@@ -1,0 +1,67 @@
+@model ApplicationPageViewModel
+@* View: Applications/Edit. The single-page rental application: step indicator, the current section inside the
+   one form (editable) or read-only, and beside it the status card view component and, for property managers,
+   the status history view component. *@
+@{
+    var details = Model.Header.Details;
+    ViewData["Title"] = $"Application – unit {details.UnitNumber}";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb small">
+        <li class="breadcrumb-item">
+            <a asp-action="Index">@(Model.Header.IsManager ? "Applications" : "My applications")</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Unit @details.UnitNumber</li>
+    </ol>
+</nav>
+
+<h1 class="h3 mb-1">Unit @details.UnitNumber · @details.PropertyName</h1>
+<p class="text-muted mb-4">@details.PropertyAddress</p>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <partial name="_SectionStepper" model="Model" />
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                @if (Model.IsEditable)
+                {
+                    @* The one form of the page. Its buttons share name="command"; the server acts on the one clicked. *@
+                    <form asp-action="Edit" asp-route-id="@Model.Id" method="post" id="application-form">
+                        <input type="hidden" asp-for="CurrentSection" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        <partial name="_CurrentSection" model="Model" />
+                        <partial name="_SectionNav" model="Model" />
+                    </form>
+                }
+                else
+                {
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    @if (Model.Header.IsOwner)
+                    {
+                        <div class="alert alert-secondary small">
+                            This application is <strong>@details.Status.ToString().ToLowerInvariant()</strong>, so every section is read-only.
+                        </div>
+                    }
+                    <partial name="_CurrentSection" model="Model" />
+                    <partial name="_SectionNav" model="Model" />
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div id="status-panel" data-refresh-url="@Url.Action("StatusPanel", new { id = Model.Id })">
+            @await Component.InvokeAsync(typeof(ApplicationStatusViewComponent), new { applicationId = Model.Id })
+        </div>
+
+        @if (Model.Header.IsManager)
+        {
+            @* Property managers see every status change, reviewer and comment. *@
+            <div id="status-history" data-refresh-url="@Url.Action("History", new { id = Model.Id })">
+                @await Component.InvokeAsync(typeof(StatusHistoryViewComponent), new { applicationId = Model.Id })
+            </div>
+        }
+    </div>
+</div>

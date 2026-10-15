@@ -1,0 +1,21 @@
+@* Partial: _LoginPartial. Navbar area showing the signed-in user's email, role and a POST log-out button, or
+   log-in link and a create-account button. *@
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <div class="d-flex align-items-center gap-2">
+        <span class="navbar-text small">
+            @User.Identity.Name
+            <span class="badge text-bg-light border">@(User.IsInRole(Roles.PropertyManager) ? "Property manager" : "Applicant")</span>
+        </span>
+        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+            <button type="submit" class="btn btn-link nav-link text-dark">Log out</button>
+        </form>
+    </div>
+}
+else
+{
+    <ul class="navbar-nav align-items-lg-center gap-lg-2">
+        <li class="nav-item"><a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Log in</a></li>
+        <li class="nav-item"><a class="btn btn-primary btn-sm px-3 my-2 my-lg-0" asp-controller="Account" asp-action="Register">Create account</a></li>
+    </ul>
+}

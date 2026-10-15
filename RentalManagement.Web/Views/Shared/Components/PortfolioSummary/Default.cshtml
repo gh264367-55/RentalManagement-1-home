@@ -1,0 +1,24 @@
+@model PortfolioStats
+@* View component template: PortfolioSummary. Five tiles with the portfolio's headline numbers. *@
+@{
+    var tiles = new (string Label, int Value, string Accent)[]
+    {
+        ("Properties", Model.Properties, "text-body"),
+        ("Units", Model.Units, "text-body"),
+        ("Leased today", Model.LeasedUnits, "text-secondary"),
+        ("Available", Model.AvailableUnits, "text-success"),
+        ("Awaiting review", Model.AwaitingReview, Model.AwaitingReview > 0 ? "text-primary" : "text-body"),
+    };
+}
+
+<div class="row row-cols-2 row-cols-md-5 g-3">
+    @foreach (var tile in tiles)
+    {
+        <div class="col">
+            <div class="border rounded bg-body p-3 h-100">
+                <div class="small text-muted">@tile.Label</div>
+                <div class="fs-3 fw-semibold @tile.Accent">@tile.Value</div>
+            </div>
+        </div>
+    }
+</div>
